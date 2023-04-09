@@ -4,6 +4,7 @@ import './App.css';
 //import firebaseConfig from './firebase.config';
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
+import { useState } from 'react';
 
 
 
@@ -19,18 +20,47 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 function App() {
+
+  const [user, setUser] = useState({
+    isSignedIn: false,
+    name: "",
+    email: "",
+    photo:""
+  })
+
   const handleSignin = () => {
     const provider = new GoogleAuthProvider();  
     const auth = getAuth();
     signInWithPopup(auth, provider)
     .then((res) => {
-     console.log(res);
+     const {displayName, photoURL, email} = res.user;
+     const signedInuser = {
+      isSignedIn: true,
+      name: displayName,
+      email: email,
+      photo: photoURL
+    }
+    setUser(signedInuser);
+    console.log(displayName, email, photoURL);
+  })
+
+
+  .catch((err)=>{
+    console.log(err);
+    console.log(err.message);
   })
 }
 
   return (
     <div className="App">
       <button onClick={handleSignin}>Sign In :</button>
+      {
+        user.isSignedIn && <div>
+          <p>Welcome {user.name}</p>
+          <p>Your email : {user.email}</p>
+          <img src={user.photo} referrerPolicy="no-referrer" alt=""></img>
+          </div>
+      }
    
     </div>
   );
