@@ -51,9 +51,31 @@ function App() {
   })
 }
 
+const handleSignout = () => {
+  firebase.auth().signOut()
+  .then(res=>{
+    const signedOutuser = {isSignedIn:false,
+      name: "",
+      photo:"",
+      email:""
+    }
+    setUser(signedOutuser);
+  
+  
+})
+.catch(err=>{
+
+})
+}
+
+
   return (
     <div className="App">
-      <button onClick={handleSignin}>Sign In :</button>
+      {
+        user.isSignedIn? <button onClick={handleSignout}>Sign Out :</button> :
+        <button onClick={handleSignin}>Sign In :</button>
+        
+      }
       {
         user.isSignedIn && <div>
           <p>Welcome {user.name}</p>
