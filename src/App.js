@@ -68,6 +68,24 @@ const handleSignout = () => {
 })
 }
 
+const handleBlur = (e) => {
+  console.log(e.target.name, e.target.value);
+  if (e.target.name === "email") {
+    const isEmailValid = /\S+@\S+\.\S+/.test(e.target.value);
+    console.log(isEmailValid);
+  }
+  if (e.target.name === "password") {
+
+    const isPasswordValid = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(e.target.value);
+    console.log(isPasswordValid);
+    
+  }
+}
+
+const handleSubmit = () => {
+
+}
+
 
   return (
     <div className="App">
@@ -83,6 +101,20 @@ const handleSignout = () => {
           <img src={user.photo} referrerPolicy="no-referrer" alt=""></img>
           </div>
       }
+    
+    <h1>New Authentication : </h1>
+    
+    <form onSubmit={handleSubmit}>
+    <br />
+    <input type="text" onBlur={handleBlur} name="email" placeholder='Write Your Email Address' required />
+    <br />
+    <input type="password" onChange={handleBlur} name="password" id="" placeholder='Your Password' required/>
+    <br />
+    
+    <input type="submit" value="Submit" />
+    </form>
+
+
    
     </div>
   );
