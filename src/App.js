@@ -5,7 +5,7 @@ import './App.css';
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 
 
@@ -21,9 +21,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 function App() {
-
+  const [newUser, setNewUser] = useState(false);
   const [user, setUser] = useState({
     isSignedIn: false,
+    
     name: "",
     email: "",
     photo:""
@@ -99,7 +100,7 @@ const handleBlur = (e) => {
 }
 
 const handleSubmit = (e) => {
-  if (user.email && user.password){
+  if (newUser && user.email && user.password){
    
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, user.email, user.password)
@@ -119,6 +120,27 @@ const handleSubmit = (e) => {
         // ..
       });
     
+  }
+  if(!newUser && user.email && user.password){
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, user.email, user.password)
+      
+      .then((res) => {
+          const newUserInfo={...user};
+          newUserInfo.error = '';
+          newUserInfo.success=true;
+          setUser(newUserInfo);
+      })
+      
+      .catch((error) => {
+        const newUserInfo={...user};
+        newUserInfo.error = error.message;
+        newUserInfo.success= false;
+       setUser(newUserInfo);
+        
+       
+        // ..
+      });
   }
   e.preventDefault();
   
@@ -142,9 +164,12 @@ const handleSubmit = (e) => {
       }
     
     <p>Our Authentication :</p>
+    
+    <input type="checkbox" onChange={()=>setNewUser(!newUser)} name="newUser" id="" />
+    <label htmlFor="newUser">New User SignUP</label>
     <br />
     <form onSubmit={handleSubmit}>
-      <input name="name" type="text" onBlur={handleBlur} placeholder='Your Name'/>
+    {newUser && <input name="name" type="text" onBlur={handleBlur} placeholder='Your Name'/>}    
     <br />
     <input type="text" onBlur={handleBlur} name="email" placeholder='Write Your Email Address' required />
     <br />
@@ -154,7 +179,7 @@ const handleSubmit = (e) => {
     <input type="submit" value="Submit" />
     </form>
       <p style={{color: 'red'}}>{user.error}</p>
-      {user.success && <p style={{color: 'green'}}>User Created successfully</p>}
+      {user.success && <p style={{color: 'green'}}>User {newUser ? 'Created':'Logged In'} successfully</p>}
 
    
     </div>
