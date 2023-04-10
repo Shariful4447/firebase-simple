@@ -5,6 +5,7 @@ import './App.css';
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useState } from 'react';
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 
 
@@ -58,7 +59,9 @@ const handleSignout = () => {
       name: "",
       photo:"",
       password:"",
-      email:""
+      email:"",
+      error:"",
+      success:false
     }
     setUser(signedOutuser);
   
@@ -70,9 +73,9 @@ const handleSignout = () => {
 }
 
 const handleBlur = (e) => {
-    let isFormValid = true;
+    let isFildValid = true;
     if (e.target.name === "email") {
-      isFormValid = /\S+@\S+\.\S+/.test(e.target.value);
+      isFildValid = /\S+@\S+\.\S+/.test(e.target.value);
       
     }
     if (e.target.name === "password") {
@@ -80,11 +83,11 @@ const handleBlur = (e) => {
       const passwordHasNumber = /\d{1}/.test(e.target.value);
 
       //const isFormValid = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(e.target.value);
-      isFormValid = isPasswordValid && passwordHasNumber;
+      isFildValid = isPasswordValid && passwordHasNumber;
     
     
     }
-    if (isFormValid) {
+    if (isFildValid) {
       
       const newUserInfo={...user};
       newUserInfo[e.target.name] = e.target.value;
@@ -95,7 +98,30 @@ const handleBlur = (e) => {
     }
 }
 
-const handleSubmit = () => {
+const handleSubmit = (e) => {
+  if (user.email && user.password){
+   
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then((res) => {
+        const newUserInfo={...user};
+        newUserInfo.error = '';
+        newUserInfo.success=true;
+        setUser(newUserInfo);
+      })
+      .catch((error) => {
+        const newUserInfo={...user};
+        newUserInfo.error = error.message;
+        newUserInfo.success= false;
+       setUser(newUserInfo);
+        
+       
+        // ..
+      });
+    
+  }
+  e.preventDefault();
+  
 
 }
 
@@ -115,11 +141,8 @@ const handleSubmit = () => {
           </div>
       }
     
-    <h1>New Authentication : </h1>
-    <p>Name : {user.name}</p>
-    <p>Email : {user.email}</p>
-    <p>Password : {user.password}</p>
-    
+    <p>Our Authentication :</p>
+    <br />
     <form onSubmit={handleSubmit}>
       <input name="name" type="text" onBlur={handleBlur} placeholder='Your Name'/>
     <br />
@@ -130,7 +153,8 @@ const handleSubmit = () => {
     
     <input type="submit" value="Submit" />
     </form>
-
+      <p style={{color: 'red'}}>{user.error}</p>
+      {user.success && <p style={{color: 'green'}}>User Created successfully</p>}
 
    
     </div>
