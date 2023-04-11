@@ -5,7 +5,8 @@ import './App.css';
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} from "firebase/auth";
+//import { FacebookAuthProvider } from "firebase/auth";
 
 
 
@@ -30,10 +31,13 @@ function App() {
     photo:""
   })
 
+  const googleProvider = new GoogleAuthProvider(); 
+  //const fbAuthProvider = new FacebookAuthProvider();
+ 
   const handleSignin = () => {
-    const provider = new GoogleAuthProvider();  
+     
     const auth = getAuth();
-    signInWithPopup(auth, provider)
+    signInWithPopup(auth, googleProvider)
     .then((res) => {
      const {displayName, photoURL, email} = res.user;
      const signedInuser = {
@@ -51,6 +55,37 @@ function App() {
     console.log(err);
     console.log(err.message);
   })
+}
+
+const handleFacebookSignIn = ()=> {
+  // const auth = getAuth();
+  // signInWithPopup(auth, fbAuthProvider)
+  //   .then((result) => {
+  //     // The signed-in user info.
+  //     const user = result.user;
+  //     console.log('Fb User After Sign In :',user);
+
+  
+  //     // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+  //     // const credential = FacebookAuthProvider.credentialFromResult(result);
+  //     // const accessToken = credential.accessToken;
+      
+  
+  //     // IdP data available using getAdditionalUserInfo(result)
+  //     // ...
+  //   })
+  //   .catch((error) => {
+  //     // Handle Errors here.
+  //     const errorCode = error.code;
+  //     const errorMessage = error.message;
+  //     console.log(errorCode,errorMessage);
+  //     // The email of the user's account used.
+  //     // const email = error.customData.email;
+  //     // // The AuthCredential type that was used.
+  //     // const credential = FacebookAuthProvider.credentialFromError(error);
+  
+  //     // ...
+  //   });
 }
 
 const handleSignout = () => {
@@ -109,6 +144,7 @@ const handleSubmit = (e) => {
         newUserInfo.error = '';
         newUserInfo.success=true;
         setUser(newUserInfo);
+        updateUserName(user.name);
       })
       .catch((error) => {
         const newUserInfo={...user};
@@ -130,6 +166,7 @@ const handleSubmit = (e) => {
           newUserInfo.error = '';
           newUserInfo.success=true;
           setUser(newUserInfo);
+          console.log('Sign In Succesfully', res.user);
       })
       
       .catch((error) => {
@@ -147,6 +184,22 @@ const handleSubmit = (e) => {
 
 }
 
+const updateUserName = name => {
+    var auth = getAuth();
+    updateProfile(auth.currentUser, {
+      displayName: name
+      
+    }).then(() => {
+      // Profile updated!
+      console.log('Profile Name updated');
+      // ...
+    }).catch((error) => {
+      // An error occurred
+      console.log(error);
+      // ...
+    });
+}
+
 
   return (
     <div className="App">
@@ -155,6 +208,12 @@ const handleSubmit = (e) => {
         <button onClick={handleSignin}>Sign In :</button>
         
       }
+      <br />
+
+      {
+          <button onClick={handleFacebookSignIn}> SignInFacebook</button>
+      }
+
       {
         user.isSignedIn && <div>
           <p>Welcome {user.name}</p>
@@ -176,7 +235,7 @@ const handleSubmit = (e) => {
     <input type="password" onBlur={handleBlur} name="password" id="" placeholder='Your Password' required/>
     <br />
     
-    <input type="submit" value="Submit" />
+    <input type="submit" value={newUser ? 'SignUp':'SignIn'} />
     </form>
       <p style={{color: 'red'}}>{user.error}</p>
       {user.success && <p style={{color: 'green'}}>User {newUser ? 'Created':'Logged In'} successfully</p>}
